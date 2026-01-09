@@ -343,7 +343,7 @@ CONFIRMATION_DIALOG() {
 
 PROMPT() {
     local msg="$*"
-    echo "[PROMPT:text] $msg" >&2
+    echo "[PROMPT:prompt] $msg" >&2
     _wait_response ""
 }
 
@@ -1611,7 +1611,7 @@ MAC_PICKER() {
 }
 
 PROMPT() {
-    echo "[PROMPT:text:] $1" >&2
+    echo "[PROMPT:prompt] $1" >&2
     sleep 0.1
     _wait_response ""
 }

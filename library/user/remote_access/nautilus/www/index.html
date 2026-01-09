@@ -1835,7 +1835,7 @@ function clearConsole(){
 
 let currentPromptType='confirm';
 let currentPromptDefault='';
-const promptTitles={confirm:'Confirm',text:'Enter Text',number:'Enter Number',ip:'Enter IP Address',mac:'Enter MAC Address',alert:'Alert',error:'Error'};
+const promptTitles={confirm:'Confirm',text:'Enter Text',number:'Enter Number',ip:'Enter IP Address',mac:'Enter MAC Address',alert:'Alert',error:'Error',prompt:''};
 const promptPatterns={
   ip:/^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
   mac:/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/
@@ -1845,18 +1845,18 @@ const promptPlaceholders={text:'Enter text...',number:'0',ip:'192.168.1.1',mac:'
 function showPrompt(type,message,defaultVal){
   currentPromptType=type;
   currentPromptDefault=defaultVal||'';
-  $('modalTitle').textContent=promptTitles[type]||'Input';
+  $('modalTitle').textContent=type in promptTitles?promptTitles[type]:'Input';
   const msgHtml=escHtml(message.replace(/\\n/g,'\n')).replace(/\n/g,'<br>');
   $('modalMessage').innerHTML=msgHtml;
   const inp=$('modalInput');
   const confirmBtn=$('modalConfirm');
   const cancelBtn=$('modalCancel');
 
-  if(type==='alert'||type==='error'){
+  if(type==='alert'||type==='error'||type==='prompt'){
     inp.style.display='none';
     confirmBtn.textContent='OK';
     cancelBtn.style.display='none';
-    $('modalTitle').style.color=type==='error'?'#ff6b6b':'#ffd93d';
+    $('modalTitle').style.color=type==='error'?'#ff6b6b':type==='alert'?'#ffd93d':'';
   }else if(type==='confirm'){
     inp.style.display='none';
     confirmBtn.textContent='Yes';
@@ -1905,8 +1905,8 @@ async function respondPrompt(confirmed){
   const inp=$('modalInput');
   let response='';
 
-  if(currentPromptType==='confirm'){
-    response=confirmed?'1':'0';
+  if(currentPromptType==='confirm'||currentPromptType==='prompt'){
+    response='1';
   }else if(!confirmed){
     response=currentPromptDefault;
   }else{
@@ -1929,7 +1929,7 @@ async function respondPrompt(confirmed){
   $('modalOverlay').classList.remove('show');
   const line=document.createElement('div');
   line.className='line '+(confirmed?'green':'yellow');
-  line.textContent='[v] '+(currentPromptType==='confirm'?(confirmed?'Yes':'No'):response);
+  line.textContent='[v] '+(currentPromptType==='confirm'?(confirmed?'Yes':'No'):currentPromptType==='prompt'?'OK':response);
   $('console').appendChild(line);
   $('console').scrollTop=$('console').scrollHeight;
   await fetch('/cgi-bin/api.sh?action=respond&response='+encodeURIComponent(response)).catch(()=>{});
