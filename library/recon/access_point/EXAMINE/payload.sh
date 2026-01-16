@@ -1,20 +1,20 @@
 #!/bin/bash
 # Title:       EXAMINE
-# Description: While viewing an APs details, set the pager to monitor the APs channel or BSSID for a set amount of time or reset it to scan all channels.
+# Description: Set the pager to monitor a target AP channel or BSSID. Options for manual entry and reset to default.
 # Author:      Septumus
 # Version:     1.0
 
-LOG "Please choose an option below:"
+LOG green "A (GREEN) - EXAMINE ALL CHANNELS AND BSSID (DEFAULT)"
 LOG ""
-LOG green "A (GREEN) - RESET TO VIEW ALL CHANNELS AND AP"
+LOG blue "UP - EXAMINE TARGET AP CHANNEL"
 LOG ""
-LOG blue "UP - SET TO EXAMINE ONLY TARGET AP CHANNEL"
+LOG cyan "RIGHT - EXAMINE CHANNEL OF YOUR CHOICE"
 LOG ""
-LOG orange "RIGHT - SET TO CHANNEL OF YOUR CHOICE"
+LOG yellow "DOWN - EXAMINE TARGET AP BSSID"
 LOG ""
-LOG yellow "DOWN - SET TO EXAMINE ONLY TARGET AP BSSID"
+LOG orange "LEFT - EXAMINE BSSID OF YOUR CHOICE"
 LOG ""
-LOG red "OTHER - EXIT"
+LOG red "B (RED) - EXIT"
 LOG ""
 LOG ""
 
@@ -71,6 +71,22 @@ case ${button} in
 		LOG "Now watching only channel $channel until reset."
 		else
 		LOG "Now watching only channel $channel for $seconds seconds."
+	    	fi
+        LOG ""
+        LOG ""        
+        ;;
+     "LEFT")
+        bssid=$(MAC_PICKER "BSSID to examine: " "DE:AD:BE:EF:00:00:07")
+        PROMPT "Cancel time entry to keep your BSSID selection until you reset it."
+	seconds=$(NUMBER_PICKER "Seconds to monitor: " 7)
+        LOG "CHANGING TO BSSID $bssid..."
+        LOG ""
+        LOG ""
+	PINEAPPLE_EXAMINE_BSSID $bssid $seconds
+		if [[ -z "$seconds" ]]; then
+		LOG "Now watching only BSSID $bssid until reset."
+		else
+		LOG "Now watching only BSSID $bssid for $seconds seconds."
 	    	fi
         LOG ""
         LOG ""        
