@@ -4,7 +4,13 @@
 
 # ---------- UI / LOGGING ----------
 LOG() {
-  echo -e "[*] $*"
+  local msg="$*"
+
+  # Remove leading color words used by Pager payloads
+  msg=$(echo "$msg" | sed -E 's/^(red|green|blue|yellow|purple|cyan|white|black|orange)[[:space:]]+//I')
+
+  # Preserve newlines if payload uses \n
+  echo -e "[*] $msg"
 }
 
 ALERT() {
