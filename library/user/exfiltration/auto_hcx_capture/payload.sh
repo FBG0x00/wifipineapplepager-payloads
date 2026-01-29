@@ -1,6 +1,19 @@
 #!/bin/bash
 # Title: Auto_HCX_Capture
 #Made by: MusicalVR
+#A tool for gathering a detailed baseline around you
+
+#Checking for HCX
+if ! command -v hcxdumptool &> /dev/null; then
+    LOG "HCX missing. Starting install..."
+    LED red solid
+    opkg update
+    opkg install hcxdumptool hcxtools
+    LED finish
+else
+    LOG "HCX already installed. Skipping download."
+fi
+
 
 LOG "Starting HCX"
 LOG "HCX STARTED"
