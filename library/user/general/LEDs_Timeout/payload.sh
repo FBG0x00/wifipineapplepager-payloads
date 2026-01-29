@@ -1,15 +1,15 @@
 #!/bin/bash
-# Title: DPAD_Timeout
-# Description: Auto-disable DPAD LED when screen dims/turns off to save battery
+# Title: LED's_Timeout
+# Description: Auto-disable LED when screen dims/turns off to save battery
 # Author: Z3r0L1nk
 # Version: 1.0.0
 
-INIT_SCRIPT="/etc/init.d/dpad_timeout"
-BIN_SCRIPT="/usr/bin/DPADLED_TIMEOUT"
+INIT_SCRIPT="/etc/init.d/leds_timeout"
+BIN_SCRIPT="/usr/bin/LEDS_TIMEOUT"
 
 install_service() {
     LED SETUP
-    LOG "Installing DPAD Timeout service..."
+    LOG "Installing LED's Timeout service..."
 
     # Create init.d service
     cat > "$INIT_SCRIPT" << 'EOF'
@@ -19,7 +19,7 @@ USE_PROCD=1
 
 start_service() {
     procd_open_instance
-    procd_set_param command /usr/bin/DPADLED_TIMEOUT
+    procd_set_param command /usr/bin/LEDS_TIMEOUT
     procd_set_param respawn 3600 5 5
     procd_set_param stdout 1
     procd_set_param stderr 1
@@ -91,12 +91,12 @@ EOF
     "$INIT_SCRIPT" start
 
     LED FINISH
-    LOG "DPAD Timeout service installed and started!"
+    LOG "LED's Timeout service installed and started!"
 }
 
 uninstall_service() {
     LED SETUP
-    LOG "Uninstalling DPAD Timeout service..."
+    LOG "Uninstalling LED's Timeout service..."
 
     # Stop and disable
     if [ -f "$INIT_SCRIPT" ]; then
@@ -114,12 +114,12 @@ uninstall_service() {
     echo 1 > /sys/class/leds/b-button-led/brightness 2>/dev/null
 
     LED FINISH
-    LOG "DPAD Timeout service uninstalled!"
+    LOG "LED's Timeout service uninstalled!"
 }
 
 check_status() {
     if [ -f "$INIT_SCRIPT" ] && [ -f "$BIN_SCRIPT" ]; then
-        if pgrep -f "DPADLED_TIMEOUT" > /dev/null; then
+        if pgrep -f "LEDS_TIMEOUT" > /dev/null; then
             echo "running"
         else
             echo "stopped"
@@ -135,7 +135,7 @@ STATUS=$(check_status)
 
 case "$STATUS" in
     "running")
-        if [ "$(CONFIRMATION_DIALOG "DPAD Timeout is RUNNING. Uninstall?")" == "1" ]; then
+        if [ "$(CONFIRMATION_DIALOG "LED's Timeout is RUNNING. Uninstall?")" == "1" ]; then
             uninstall_service
         else
             LOG "No changes made."
@@ -151,7 +151,7 @@ case "$STATUS" in
         fi
         ;;
     "not_installed")
-        if [ "$(CONFIRMATION_DIALOG "Install DPAD Timeout service?")" == "1" ]; then
+        if [ "$(CONFIRMATION_DIALOG "Install LED's Timeout service?")" == "1" ]; then
             install_service
         else
             LOG "Installation cancelled."

@@ -1,8 +1,8 @@
-# DPAD Timeout
+# LED's Timeout
 
 ## Overview
 
-Automatically disables the DPAD LED when the screen dims or turns off to save battery. The LED turns back on when the screen wakes up.
+Automatically disables the LED when the screen dims or turns off to save battery. The LED turns back on when the screen wakes up.
 
 ## Features
 
@@ -13,12 +13,12 @@ Automatically disables the DPAD LED when the screen dims or turns off to save ba
 
 ## Installation
 
-Run the payload and confirm "Install DPAD Timeout service?"
+Run the payload and confirm "Install LED's Timeout service?"
 
 The service will:
 
-1. Create `/etc/init.d/dpad_timeout`
-2. Create `/usr/bin/DPADLED_TIMEOUT`
+1. Create `/etc/init.d/leds_timeout`
+2. Create `/usr/bin/LEDS_TIMEOUT`
 3. Enable and start the service
 
 ## Usage
@@ -44,8 +44,8 @@ Run the payload when service is running/stopped and select Uninstall.
 
 This removes:
 
-- `/etc/init.d/dpad_timeout`
-- `/usr/bin/DPADLED_TIMEOUT`
+- `/etc/init.d/leds_timeout`
+- `/usr/bin/LEDS_TIMEOUT`
 - Restores LED to default color
 
 ## Credits
