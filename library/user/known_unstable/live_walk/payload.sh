@@ -9,7 +9,7 @@ IFACE="wlan1mon"
 PREFIX="walk_$(date +%H%M)"
 FULL_PATH="$LOOTDIR/$PREFIX-01.csv"
 
-LOG {red} "If LEDS are RED. Pager is installing Aircrack-ng."
+LOG "If LEDS are RED. Pager is installing Aircrack-ng."
 
 #checking for Aircrack-NG
 if ! command -v aircrack-ng &> /dev/null; then
