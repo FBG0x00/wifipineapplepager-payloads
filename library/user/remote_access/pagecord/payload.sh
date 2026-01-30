@@ -42,7 +42,7 @@ fi
 
 if [[ ! -f "$ENV_FILE" ]]; then
     LOG yellow "Missing env file!"
-    LOG blue "Creating pagecord.env..."
+    LOG blue "Creating .env..."
 
     cat > "$ENV_FILE" <<'EOF'
 token="TOKEN_HERE"
@@ -51,7 +51,7 @@ pass="password"
 EOF
 
     chmod 600 "$ENV_FILE"
-    LOG green "pagecord.env created"
+    LOG green ".env created"
 fi
 
 # ---------- Load variables -------------
@@ -114,12 +114,9 @@ if [[ ${#token} -lt 70 ]]; then
         ;;
 
     $DUCKYSCRIPT_USER_DENIED)
-	    LOG ""
-        LOG red "PLEASE EDIT : $ENV_FILE"
-		LOG ""
+        LOG red "Please edit $ENV_FILE"
         LOG red "Add your Discord bot credentials before running again."
-	    ALERT "PLEASE EDIT : $ENV_FILE \n\nAdd your Discord bot credentials before running again."
-        exit 0
+        exit 1
         ;;
     *)
         LOG "Unknown response: $resp"
@@ -138,6 +135,9 @@ fi
 
 LOG blue "3 : Setting up Discord functions..."
 
+send_to_discord() {
+curl -s -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages" >/dev/null
+}
 
 generate_random_letters() {
     local letters="0123456789"
@@ -189,20 +189,20 @@ Authenticate() {
           \"embeds\": [
             {
               \"title\": \":pager:   **PageCord Session Connected!**   :pager:\",
-              \"description\": \"-# ---- Control Your WiFi Pineapple Pager Through Discord! ---- \n\n*You can use regular Linux and Duckyscript commands. Large outputs are split into 2000 character chunks to avoid Discord limits. Only the authenticated userID can interact with this session* \n\n **Additional Commands** \n- **options**  - Show the additional commands list\n- **pause**    - Pause this session (re-authenticate to resume)\n- **background**  - Restart the payload in the background\n- **close**    - Close this session permanently\n- **sysinfo**    - Show basic system information and public IP address\n- **download**   - Send a file to Discord [download path/to/file.txt]\n- **upload**     - Upload file to Pager [attach to 'upload' command]\n- **readme**     - Show a readme file [readme path/to/README.md]\n\nCurrent Directory :\`$cwd >\`\",
+              \"description\": \"-# ---- Control Your WiFi Pineapple Pager Through Discord! ---- \n\n*You can use regular Linux and Duckyscript commands. Large outputs are split into 2000 character chunks to avoid Discord limits. Only the authenticated userID can interact with this session* \n\n **Additional Commands** \n- **options**  - Show the additional commands list\n- **pause**    - Pause this session (re-authenticate to resume)\n- **background**  - Restart the payload in the background\n- **close**    - Close this session permanently\n- **sysinfo**    - Show basic system information and public IP address\n- **download**   - Send a file to Discord [download path/to/file.txt]\n- **upload**     - Upload file to Pager [attach to 'upload' command]\n- **readme**     - Show a readme file [readme path/to/README.md]\n- **payloads**     - List all user payloads along with their descriptions\n\nCurrent Directory :\`$cwd >\`\",
               \"color\": 65280
             }
           ]
         }"        
-        curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+        send_to_discord
         LOG green "Discord Session Connected"
     elif [ "$authenticated" = "1" ]; then
         LOG yellow "User Not Authenticated!"
         json_payload="{\"content\": \":octagonal_sign:   **User Not Authenticated!**  :octagonal_sign:\"}"
-        curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+        send_to_discord
     else
         json_payload="{\"content\": \":octagonal_sign:   **Incorrect password!**  Please try again...  :octagonal_sign:\"}"
-        curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+        send_to_discord
         LOG red "Session Code Incorrect!"
     fi
 }
@@ -213,12 +213,12 @@ Option_List() {
           \"embeds\": [
             {
               \"title\": \":link: **Options List** :link:\",
-              \"description\": \"- **options**  - Show the additional commands list\n- **pause**    - Pause this session (re-authenticate to resume)\n- **background**  - Restart the payload in the background\n- **close**    - Close this session permanently\n- **sysinfo**    - Show basic system information and public IP address\n- **download**   - Send a file to Discord [download path/to/file.txt]\n- **upload**     - Upload file to Pager [attach to 'upload' command]\n- **readme**     - Show a readme file [readme path/to/README.md]\n\n*You can also use regular Linux and Duckyscript commands. Large outputs are split into 2000 character chunks to avoid Discord limits. Only the authenticated userID can interact with this session* \",
+              \"description\": \"- **options**  - Show the additional commands list\n- **pause**    - Pause this session (re-authenticate to resume)\n- **background**  - Restart the payload in the background\n- **close**    - Close this session permanently\n- **sysinfo**    - Show basic system information and public IP address\n- **download**   - Send a file to Discord [download path/to/file.txt]\n- **upload**     - Upload file to Pager [attach to 'upload' command]\n- **readme**     - Show a readme file [readme path/to/README.md]\n- **payloads**     - List all user payloads along with their descriptions\n\n*You can also use regular Linux and Duckyscript commands. Large outputs are split into 2000 character chunks to avoid Discord limits. Only the authenticated userID can interact with this session* \",
               \"color\": 16777215
             }
           ]
         }"        
-        curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+        send_to_discord
 }
 
 get_recent_message() {
@@ -271,10 +271,7 @@ send_file_to_discord() {
     
     local file_name=$(basename "$file_path")
 
-    curl -X POST \
-         -H "Authorization: Bot $token" \
-         -F "file=@$file_path;filename=$file_name" \
-         "https://discord.com/api/v10/channels/$chan/messages"
+    curl -X POST -H "Authorization: Bot $token" -F "file=@$file_path;filename=$file_name" "https://discord.com/api/v10/channels/$chan/messages" >/dev/null
 }
 
 download_attachment() {
@@ -330,7 +327,7 @@ execute_command() {
                 }
               ]
             }"        
-            curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+            send_to_discord
             Sleep 1
             LOG red "Session Closed!"
             exit 0
@@ -350,7 +347,7 @@ execute_command() {
                 }
               ]
             }" 
-            curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+            send_to_discord
 	    LOG ""
 	    LOG yellow "Session Waiting..."
             return
@@ -362,7 +359,7 @@ execute_command() {
             command="$1"
             download_attachment
             json_payload="{\"content\": \":white_check_mark:   **File Uploaded to Pager**   :white_check_mark:\"}"
-            curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+            send_to_discord
             return
         fi
 
@@ -385,7 +382,7 @@ execute_command() {
             echo "Received 'download' command with file path: $command_args"
             send_file_to_discord "$command_args"
             json_payload="{\"content\": \":white_check_mark:   **File Downloaded from Pager**   :white_check_mark:\"}"
-            curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+            send_to_discord
             return
         fi
 
@@ -398,9 +395,88 @@ execute_command() {
                 *)       sys_info="Unsupported OS" ;;
             esac
             json_payload="{\"content\": \"\`\`\`$sys_info\`\`\`\"}"
-            curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+            send_to_discord
             return
         fi
+
+
+        if [[ "$command" == "payloads"* ]]; then
+            LOG "Payloads List Command Received"
+        
+            payload_root="/mmc/root/payloads/user"
+            tmp_out="$(mktemp)"
+        
+            _trim() { sed 's/^[[:space:]]*//; s/[[:space:]]*$//'; }
+        
+        
+            {
+                echo "# Payloads List"
+                echo
+        
+                if [[ ! -d "$payload_root" ]]; then
+                    echo "[ERROR] Directory not found: $payload_root"
+                else
+                    shopt -s nullglob
+        
+                    for category_path in "$payload_root"/*; do
+                        [[ -d "$category_path" ]] || continue
+                        category_name="$(basename "$category_path")"
+        
+                        echo "\`\`\`============= $category_name =============\`\`\`"
+                        found_any=0
+                        idx=0
+        
+                        for payload_dir in "$category_path"/*; do
+                            [[ -d "$payload_dir" ]] || continue
+                            payload_name="$(basename "$payload_dir")"
+                            payload_file="$payload_dir/payload.sh"
+                            [[ -f "$payload_file" ]] || continue
+                            found_any=1
+                            idx=$((idx+1))
+                            title="$(grep -m1 -E '^[[:space:]]*#[[:space:]]*Title:' "$payload_file" | sed -E 's/^[[:space:]]*#[[:space:]]*Title:[[:space:]]*//')"
+                            desc="$(grep -m1 -E '^[[:space:]]*#[[:space:]]*Description:' "$payload_file" | sed -E 's/^[[:space:]]*#[[:space:]]*Description:[[:space:]]*//')"
+                            title="$(printf "%s" "$title" | _trim)"
+                            desc="$(printf "%s" "$desc" | _trim)"
+                            if [[ -z "$title" ]]; then
+                                title="$payload_name"
+                            fi
+                            if [[ -z "$desc" ]]; then
+                                desc="No Description Found"
+                            fi
+                            echo "\`$idx\` **$title** — $desc"
+                        done
+                        if [[ $found_any -eq 0 ]]; then
+                            echo "No Payloads Found"
+                        fi
+                        echo
+                    done
+                    shopt -u nullglob
+                fi
+            } > "$tmp_out"
+        
+            accumulated_lines=""
+            while IFS= read -r line; do
+                if [ $((${#accumulated_lines} + ${#line} + 1)) -gt 1900 ]; then
+                    json_payload=$(jq -n --arg content "$accumulated_lines" '{content: $content}')
+                    send_to_discord
+                    accumulated_lines="$line"
+                    sleep 1
+                else
+                    if [[ -z "$accumulated_lines" ]]; then
+                        accumulated_lines="$line"
+                    else
+                        accumulated_lines+=$'\n'"$line"
+                    fi
+                fi
+            done < "$tmp_out"
+            if [ -n "$accumulated_lines" ]; then
+                json_payload=$(jq -n --arg content "$accumulated_lines" '{content: $content}')
+                send_to_discord
+            fi
+            rm -f "$tmp_out"
+            return
+        fi
+
 
         if [[ "$command" == "readme"* && -n "$command_args" ]]; then
             LOG "Readme Command Received"
@@ -412,7 +488,7 @@ execute_command() {
                 while IFS= read -r line; do
                     if [ $((${#accumulated_lines} + ${#line})) -gt 1900 ]; then
                         json_payload=$(jq -n --arg content "$accumulated_lines" '{content: $content}')
-                        curl -s -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+                        send_to_discord
                         accumulated_lines="$line"
                         sleep 1
                     else
@@ -422,15 +498,15 @@ execute_command() {
     
                 if [ -n "$accumulated_lines" ]; then
                     json_payload=$(jq -n --arg content "$accumulated_lines" '{content: $content}')
-                    curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+                    send_to_discord
                 fi
                 rm "$temp_file"
             fi
             return
         else
             error_message=$(echo "$readme_result" | tr -d '\n' | sed 's/"/\\"/g')
-            json_payload="{\"content\": \"\`\`\` [ERROR] $readme_result\`\`\`\"}"
-            curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"           
+            json_payload="{\"content\": \"$readme_result\"}"
+            send_to_discord          
         fi        
         
         if [ $? -eq 0 ]; then
@@ -443,7 +519,7 @@ execute_command() {
                     sanitized_line=$(sanitize_json "$line")
                     if [ $((${#accumulated_lines} + ${#sanitized_line})) -gt 1900 ]; then
                         json_payload="{\"content\": \"\`\`\`$accumulated_lines\`\`\`\"}"
-                        curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+                        send_to_discord
                         accumulated_lines="$sanitized_line"
                         sleep 1
                     else
@@ -453,7 +529,7 @@ execute_command() {
     
                 if [ -n "$accumulated_lines" ]; then
                     json_payload="{\"content\": \"\`\`\`$accumulated_lines\`\`\`\"}"
-                    curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+                    send_to_discord
                 fi
                 rm "$temp_file"
             else
@@ -468,12 +544,13 @@ execute_command() {
 	            }
 	          ]
 	        }"
-                curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+                send_to_discord
             fi
+            return
         else
             error_message=$(echo "$command_result" | tr -d '\n' | sed 's/"/\\"/g')
-            json_payload="{\"content\": \"\`\`\` [ERROR] $command_result\`\`\`\"}"
-            curl -X POST -H "Authorization: Bot $token" -H "Content-Type: application/json" -d "$json_payload" "https://discord.com/api/v10/channels/$chan/messages"
+            json_payload="{\"content\": \"$command_result\"}"
+            send_to_discord
         fi
     else
         Authenticate
