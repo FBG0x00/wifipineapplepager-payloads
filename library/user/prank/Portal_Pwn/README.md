@@ -14,9 +14,9 @@ The payload prompts the user for the EP SSID, will then connect, and finally pro
 
 This payload has succesfully been tested on (and crashed):
 ```
-JustCallMeKoko ESP32 Marauder v6.1 - Firmware v1.10.12
-JustCallMeKoko ESP32 Marauder Mini - Firmware v1.10.12
-Flipper Zero - Momentum Firmware - Evil Portal app
-Cheap Yellow Display
-Evil Cardputer instances
+- JustCallMeKoko ESP32 Marauder v6.1 - Firmware v1.10.12
+- JustCallMeKoko ESP32 Marauder Mini - Firmware v1.10.12
+- Flipper Zero - Momentum Firmware - Evil Portal app
+- Cheap Yellow Display
+- Evil Cardputer instances
 ```
