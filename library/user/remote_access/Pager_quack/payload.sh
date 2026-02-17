@@ -3,10 +3,11 @@
 # Title:  Pager_quack
 # Author: spywill
 # Description: Send QUACK command to your keycroc from wifi pineapple pager
-# Version: 1.1
+# Version: 1.3
 
-#trap 'exit 0' INT TERM
+trap 'exit 0' INT TERM EXIT
 quack_file="/mmc/root/payloads/user/remote_access/Pager_quack/Quack.txt"
+keystroke_payload="/mmc/root/payloads/user/remote_access/Pager_keystrokes/payload.sh"
 PASS_FILE="/mmc/root/payloads/user/remote_access/Pager_quack/croc_passwd.txt"
 CROC_IP_FILE="/mmc/root/payloads/user/remote_access/Pager_quack/croc_IP.txt"
 chmod 777 /mmc/root/payloads/user/remote_access/Pager_quack
@@ -143,7 +144,7 @@ esac
 
 # Sending QUACK command over SSH
 spinnerid=$(START_SPINNER "Sending QUACK command...")
-sshpass -p "$croc_passwd" ssh -o StrictHostKeyChecking=no root@$croc_ip <<EOF || true
+/mmc/usr/bin/sshpass -p "$croc_passwd" ssh -o StrictHostKeyChecking=no root@$croc_ip <<EOF || true
 $( if [[ -f "$quack" ]]; then
 	cat "$quack"
 else
@@ -165,3 +166,28 @@ if [[ $rc -eq 0 ]]; then
 else
 	LOG red "QUACK failed (ssh exit code $rc)"
 fi
+
+sleep 2
+resp=$(CONFIRMATION_DIALOG "Start Pager_keystrokes payload
+
+ensure Pager_keystrokes payload is installed")
+case "$resp" in
+	$DUCKYSCRIPT_USER_CONFIRMED)
+		if [ -f "$keystroke_payload" ]; then
+			LOG "Starting Pager_keystrokes payload"
+			export DUCKYSCRIPT_USER_CONFIRMED="1"
+			source $keystroke_payload
+		else
+			LOG red "$keystroke_payload missing or empty"
+			exit 1
+		fi
+		;;
+	$DUCKYSCRIPT_USER_DENIED)
+		LOG "User selected no"
+		exit 1
+		;;
+	*)
+		LOG "Unknown response: $resp"
+		exit 1
+		;;
+esac
